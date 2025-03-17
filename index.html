@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Music Player</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 3.9%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --border: 240 5.9% 90%;
+            --ring: 240 5.9% 10%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --card: 240 10% 3.9%;
+            --card-foreground: 0 0% 98%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --ring: 240 4.9% 83.9%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        .title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            color: hsl(var(--foreground));
+            letter-spacing: -0.025em;
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .song-card {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .song-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .song-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+
+        .song-info {
+            padding: 0.75rem;
+        }
+
+        .song-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--card-foreground));
+        }
+
+        .player-container {
+            background-color: hsl(var(--card));
+            border-top: 1px solid hsl(var(--border));
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+
+        .audio-player {
+            width: 100%;
+            height: 32px;
+        }
+
+        .upload-section {
+            display: none;
+            margin-top: 1.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .upload-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border: 1px solid hsl(var(--border));
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        audio::-webkit-media-controls-panel {
+            background-color: transparent;
+        }
+
+        audio::-webkit-media-controls-play-button {
+            background-color: hsl(var(--primary));
+            border-radius: 50%;
+        }
+
+        audio::-webkit-media-controls-timeline {
+            background-color: hsl(var(--accent));
+            border-radius: var(--radius);
+            height: 2px;
+        }
+    </style>
+</head>
+<body class="dark">
+    <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
+    <div class="container">
+        <h1 class="title">Now Playing</h1>
+        
+        <div class="song-grid">
+            <div class="song-card" id="finding_her">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800" alt="Finding Her" class="song-image">
+                <div class="song-info">
+                    <h3 class="song-title">Finding Her</h3>
+                </div>
+            </div>
+            <div class="song-card" id="nanchaku">
+                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=800" alt="Nanchaku" class="song-image">
+                <div class="song-info">
+                    <h3 class="song-title">Nanchaku</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3 class="upload-title">Upload Music</h3>
+            <input type="file" id="audioUpload" accept="audio/*" class="file-input">
+        </div>
+
+        <div class="player-container">
+            <audio id="audioPlayer" class="audio-player" controls></audio>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+        }
+        
+        function useUpload() {
+            const upload_section = document.querySelector(".upload-section");
+            upload_section.style.display = (upload_section.style.display === "none" || upload_section.style.display === "") ? "block" : "none";
+        }
+
+        $(document).ready(function () {
+            const audio_player = $("#audioPlayer")[0];
+            let current_song = "";
+            
+            async function loadAndPlaySong(song_id) {
+                try {
+                    // Fetch the song data from a JSON file
+                    const response = await fetch(`songs/${song_id}.json`);
+                    if (!response.ok) throw new Error("Failed to load song data");
+
+                    const data = await response.json();
+                    if (!data.base64) throw new Error("Invalid song data");
+
+                    // Play the song using the base64 string
+                    audio_player.src = `data:audio/mp3;base64,${data.base64}`;
+                    audio_player.play();
+                    current_song = song_id;
+
+                } catch (error) {
+                    console.error("Error loading song:", error);
+                }
+            }
+
+            // Click event for playing songs
+            $(".song-card").click(function () {
+                const song_id = $(this).attr("id");
+                if (current_song === song_id) return;
+                loadAndPlaySong(song_id);
+            });
+
+            // Upload and play local files
+            $("#audioUpload").on("change", function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    audio_player.src = e.target.result;
+                    audio_player.play();
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+    </script>
+</body>
+</html>
