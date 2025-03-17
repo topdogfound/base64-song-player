@@ -182,7 +182,7 @@
 <body class="dark">
     <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
     <div class="container">
-        <h1 class="title">Now Playing</h1>
+        <h1 class="title">Songs</h1>
         
         <div class="song-grid">
             <div class="song-card" id="finding_her">
@@ -214,6 +214,7 @@
             document.body.classList.toggle('dark');
         }
         
+
         function useUpload() {
             const upload_section = document.querySelector(".upload-section");
             upload_section.style.display = (upload_section.style.display === "none" || upload_section.style.display === "") ? "block" : "none";
